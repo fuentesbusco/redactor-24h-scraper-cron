@@ -1,0 +1,27 @@
+{
+  "name": "redactor-24h-scraper-cron",
+  "version": "1.0.0",
+  "main": "scheduler.js",
+  "scripts": {
+    "start": "node scheduler.js"
+  },
+  "author": "Atelier Busco",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "axios": "^1.9.0",
+    "cheerio": "^1.1.0",
+    "crypto": "^1.0.1",
+    "dotenv": "^16.5.0",
+    "form-data": "^4.0.3",
+    "html-entities": "^2.6.0",
+    "mustache": "^4.2.0",
+    "mysql2": "^3.14.1",
+    "node-cron": "^4.1.0",
+    "node-fetch": "^3.3.2",
+    "sharp": "^0.34.2",
+    "twitter-api-v2": "^1.23.2",
+    "xml2js": "^0.6.2"
+  },
+  "type": "module"
+}
