@@ -11,6 +11,8 @@ import runReutersNewsScraper from "./scraper-reuters.js";
 import runBiobioScraper from "./scraper-biobio.js";
 import runCooperativaScraper from "./scraper-cooperativa.js";
 import runElCiudadanoScraper from "./scraper-el-ciudadano.js";
+import runSoyChileScraper from "./scraper-soy-chile.js";
+import runCiperScraper from "./scraper-ciper-chile.js";
 
 export async function runAllScrapers() {
   console.log(`🔄 Iniciando todos los scrapers...`);
@@ -27,6 +29,9 @@ export async function runAllScrapers() {
     totalNews += await runBiobioScraper();
     totalNews += await runCooperativaScraper();
     totalNews += await runElCiudadanoScraper();
+    totalNews += await runSoyChileScraper();
+    totalNews += await runCiperScraper();
+
     console.log(`✅ Todos los scrapers ejecutados correctamente.`);
     let endTime = Date.now();
     let duration = ((endTime - startTime) / 1000).toFixed(2);

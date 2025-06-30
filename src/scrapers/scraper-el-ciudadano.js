@@ -8,7 +8,7 @@ import * as cheerio from "cheerio";
 // --- Configuración para El Ciudadano ---
 const SOURCE_ID_EL_CIUDADANO = 9; // Asigna un ID único para esta fuente
 const PAGE_SIZE = 10; // La API de WP usa 'per_page', 10 es el default
-const TOTAL_PAGES = 4; // Cuántas páginas por categoría quieres scrapear
+const TOTAL_PAGES = 5; // Cuántas páginas por categoría quieres scrapear
 const DELAY_MS = 800; // Mantenemos el delay para no sobrecargar el servidor
 
 // IDs de categorías de El Ciudadano. Puedes obtener más desde:
@@ -28,7 +28,7 @@ const categoriesToScrape = [
   categoryIds.chile,
   categoryIds.mundo,
   categoryIds.economia,
-  categoryIds.cultura,
+  // categoryIds.cultura,
 ];
 let db;
 
@@ -134,25 +134,33 @@ async function saveArticle(article) {
   const content = cleanContent(article.content.rendered || "");
   const description = article.acf.resume || article.acf.bajada_titulo || "";
 
-  await db.execute(
-    `INSERT INTO scraped_articles
+  try {
+    await db.execute(
+      `INSERT INTO scraped_articles
           (source_id, title, description, author, section, tags, content, image_url, url, published_at, hash)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-         ON DUPLICATE KEY UPDATE title=VALUES(title), published_at=VALUES(published_at)`, // Evita duplicados
-    [
-      SOURCE_ID_EL_CIUDADANO,
-      article.title.rendered,
-      description,
-      null,
-      sections.length > 0 ? sections[0] : "General", // Guarda la primera categoría como principal
-      JSON.stringify(tags),
-      content,
-      article.jetpack_featured_media_url || null,
-      article.link,
-      new Date(article.date_gmt), // Usar fecha GMT para consistencia
-      hash,
-    ]
-  );
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, // Evita duplicados
+      [
+        SOURCE_ID_EL_CIUDADANO,
+        article.title.rendered,
+        description,
+        null,
+        sections.length > 0 ? sections[0] : "General", // Guarda la primera categoría como principal
+        JSON.stringify(tags),
+        content,
+        article.jetpack_featured_media_url || null,
+        article.link,
+        new Date(article.date_gmt), // Usar fecha GMT para consistencia
+        hash,
+      ]
+    );
+    console.log(`✅ Guardado: ${article.title.rendered}`);
+  } catch (err) {
+    if (err.code === "ER_DUP_ENTRY") {
+      console.log(`⚠️ Duplicado (hash): ${article.link}`);
+    } else {
+      console.error(`❌ Error al guardar: ${err.message}`);
+    }
+  }
 }
 
 async function runElCiudadanoScraper() {
@@ -212,12 +220,5 @@ async function runElCiudadanoScraper() {
 
   return newsCount;
 }
-// runElCiudadanoScraper()
-//   .then((count) => {
-//     console.log(`Total de noticias procesadas: ${count}`);
-//   })
-//   .catch((err) => {
-//     console.error("Error al ejecutar el scraper:", err.message);
-//   });
 
 export default runElCiudadanoScraper;
